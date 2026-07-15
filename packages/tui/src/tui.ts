@@ -16,6 +16,7 @@ export type TUIState = {
 	historyIndex: number;
 	messages: Message[];
 	scrollOffset: number;
+	pendingAssistantContent?: string;
 };
 
 export type Message =

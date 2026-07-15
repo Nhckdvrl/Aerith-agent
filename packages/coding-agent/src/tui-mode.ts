@@ -31,6 +31,7 @@ export function runTUIMode(options: TUIModeOptions): Promise<void> {
 			}
 			if (input === "/clear") {
 				state.messages = [];
+				state.pendingAssistantContent = undefined;
 				options.sessionManager.setMessages([]);
 				await options.sessionManager.save();
 				tui.draw();
@@ -41,7 +42,15 @@ export function runTUIMode(options: TUIModeOptions): Promise<void> {
 					(m): m is { type: "user" | "assistant"; content: string } => m.type === "user" || m.type === "assistant",
 				)
 				.map((m) => ({ role: m.type, content: m.content }));
-			const result = await options.agent.run(input, { messages: agentMessages });
+			state.pendingAssistantContent = "";
+			const result = await options.agent.run(input, {
+				messages: agentMessages,
+				onTextDelta: (delta) => {
+					state.pendingAssistantContent += delta;
+					tui.draw();
+				},
+			});
+			state.pendingAssistantContent = undefined;
 			options.sessionManager.setMessages(result.messages);
 			await options.sessionManager.save();
 			const assistantMessage = findLastAssistantMessage(result.messages);
@@ -78,6 +87,12 @@ function render(screen: ScreenBuffer, state: TUIState, columns: number): void {
 		const text = `${prefix}${message.content}`;
 		const lines =
 			message.type === "assistant" ? renderMarkdownToLines(text, columns - 2) : wrapTextToCells(text, columns - 2);
+		allLines.push(...lines, []);
+	}
+
+	if (state.pendingAssistantContent !== undefined) {
+		const text = `Aerith: ${state.pendingAssistantContent}`;
+		const lines = renderMarkdownToLines(text, columns - 2);
 		allLines.push(...lines, []);
 	}
 

@@ -1,6 +1,6 @@
 import type { Message, Tool, ToolCall } from "@aerith/ai";
 import { type CompactionOptions, compact } from "./compaction.ts";
-import type { AgentOptions, AgentRunResult, ToolDefinition } from "./types.ts";
+import type { AgentOptions, AgentRunOptions, AgentRunResult, ToolDefinition } from "./types.ts";
 
 const DEFAULT_MAX_ITERATIONS = 25;
 
@@ -10,6 +10,7 @@ export class Agent {
 	private readonly maxIterations: number;
 	private readonly tools: Map<string, ToolDefinition>;
 	private readonly compaction?: CompactionOptions;
+	private readonly onTextDelta?: (delta: string) => void;
 
 	constructor(options: AgentOptions) {
 		this.provider = options.provider;
@@ -17,6 +18,7 @@ export class Agent {
 		this.maxIterations = options.maxIterations ?? DEFAULT_MAX_ITERATIONS;
 		this.tools = options.tools ?? new Map<string, ToolDefinition>();
 		this.compaction = options.compaction;
+		this.onTextDelta = options.onTextDelta;
 	}
 
 	addTool(name: string, definition: ToolDefinition): void {
@@ -27,9 +29,10 @@ export class Agent {
 		this.provider = provider;
 	}
 
-	async run(input: string, options: { messages?: Message[] } = {}): Promise<AgentRunResult> {
+	async run(input: string, options: AgentRunOptions = {}): Promise<AgentRunResult> {
 		const messages: Message[] = options.messages ? [...options.messages] : [];
 		messages.push({ role: "user", content: input });
+		const onTextDelta = options.onTextDelta ?? this.onTextDelta;
 
 		for (let iteration = 0; iteration < this.maxIterations; iteration++) {
 			const compacted = this.compaction
@@ -46,6 +49,7 @@ export class Agent {
 			for await (const event of events) {
 				if (event.type === "text") {
 					text += event.delta;
+					onTextDelta?.(event.delta);
 				} else if (event.type === "toolCall") {
 					toolCalls.push(event.toolCall);
 				}

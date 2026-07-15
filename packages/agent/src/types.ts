@@ -14,6 +14,12 @@ export type AgentOptions = {
 	maxIterations?: number;
 	compaction?: CompactionOptions;
 	tools?: Map<string, ToolDefinition>;
+	onTextDelta?: (delta: string) => void;
+};
+
+export type AgentRunOptions = {
+	messages?: Message[];
+	onTextDelta?: (delta: string) => void;
 };
 
 export type AgentRunResult = {

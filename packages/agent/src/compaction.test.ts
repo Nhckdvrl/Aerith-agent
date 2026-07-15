@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import type { LLMEvent, LLMProvider, Message, Tool } from "@aerith/ai";
+import type { LLMEvent, LLMProvider, Message } from "@aerith/ai";
 import { compact, estimateTokens } from "./compaction.ts";
 
 describe("compaction", () => {

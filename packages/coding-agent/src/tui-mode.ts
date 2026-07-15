@@ -1,6 +1,6 @@
 import type { Agent, SessionManager } from "@aerith/agent";
-import { createProvider, ModelRegistry } from "@aerith/ai";
 import type { Message } from "@aerith/ai";
+import { createProvider, ModelRegistry } from "@aerith/ai";
 import { ProcessTerminal, renderMarkdownToLines, type ScreenBuffer, TUI, type TUIState } from "@aerith/tui";
 import type { SettingsManager } from "./settings.ts";
 
@@ -26,7 +26,10 @@ export function runTUIMode(options: TUIModeOptions): Promise<void> {
 				const registry = new ModelRegistry();
 				const models = registry.search();
 				const list = models.map((m) => `${m.provider}/${m.id}`).join("\n");
-				tui.addMessage({ type: "assistant", content: `Available models:\n${list}\n\nUsage: /model provider/model` });
+				tui.addMessage({
+					type: "assistant",
+					content: `Available models:\n${list}\n\nUsage: /model provider/model`,
+				});
 				return;
 			}
 			if (input === "/clear") {

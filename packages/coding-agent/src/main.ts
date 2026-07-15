@@ -1,8 +1,8 @@
+import { homedir } from "node:os";
+import path from "node:path";
 import { createInterface } from "node:readline";
 import { Agent, createBuiltinTools, ExtensionManager, SessionManager } from "@aerith/agent";
 import { createProvider, ModelRegistry } from "@aerith/ai";
-import { homedir } from "node:os";
-import path from "node:path";
 import type { Args } from "./args.ts";
 import { helloExtension } from "./extensions/hello.ts";
 import { runFirstTimeSetup, shouldRunFirstTimeSetup } from "./first-time-setup.ts";
@@ -52,7 +52,10 @@ export async function main(args: Args): Promise<void> {
 		allowBash,
 	});
 
-	const extensionManager = new ExtensionManager({ cwd: sessionManager.getCwd(), settings: settings.getExtensionSettings() });
+	const extensionManager = new ExtensionManager({
+		cwd: sessionManager.getCwd(),
+		settings: settings.getExtensionSettings(),
+	});
 	await extensionManager.loadBuiltIn([helloExtension]);
 	await extensionManager.loadFromDirectory(path.join(homedir(), ".aerith", "extensions"));
 	for (const [name, tool] of extensionManager.getTools()) {

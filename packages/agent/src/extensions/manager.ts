@@ -1,8 +1,8 @@
-import { ProviderRegistry } from "@aerith/ai";
 import { existsSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { ProviderRegistry } from "@aerith/ai";
 import type { ToolDefinition } from "../types.ts";
 import type { Extension, ExtensionContext, ProviderFactory } from "./types.ts";
 

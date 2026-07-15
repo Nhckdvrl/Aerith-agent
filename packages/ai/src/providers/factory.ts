@@ -1,10 +1,10 @@
 import { ModelRegistry, type ProviderName } from "../model-registry.ts";
-import { ProviderRegistry } from "./custom-registry.ts";
-import { AnthropicProvider } from "./anthropic.ts";
-import { GoogleProvider } from "./google.ts";
-import { KimiProvider } from "./kimi.ts";
 import { OpenAIProvider } from "../openai.ts";
 import type { LLMProvider } from "../types.ts";
+import { AnthropicProvider } from "./anthropic.ts";
+import { ProviderRegistry } from "./custom-registry.ts";
+import { GoogleProvider } from "./google.ts";
+import { KimiProvider } from "./kimi.ts";
 
 export type ProviderFactoryOptions = {
 	provider?: ProviderName | string;

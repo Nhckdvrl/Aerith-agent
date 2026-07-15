@@ -1,10 +1,6 @@
 import type { LLMProvider } from "../types.ts";
 
-export type ProviderFactory = (options: {
-	apiKey?: string;
-	baseURL?: string;
-	model?: string;
-}) => LLMProvider;
+export type ProviderFactory = (options: { apiKey?: string; baseURL?: string; model?: string }) => LLMProvider;
 
 const registry = new Map<string, ProviderFactory>();
 

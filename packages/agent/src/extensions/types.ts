@@ -1,11 +1,7 @@
 import type { LLMProvider } from "@aerith/ai";
 import type { ToolDefinition } from "../types.ts";
 
-export type ProviderFactory = (options: {
-	apiKey?: string;
-	baseURL?: string;
-	model?: string;
-}) => LLMProvider;
+export type ProviderFactory = (options: { apiKey?: string; baseURL?: string; model?: string }) => LLMProvider;
 
 export type ExtensionContext = {
 	registerTool(name: string, tool: ToolDefinition): void;

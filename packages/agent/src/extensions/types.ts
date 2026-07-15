@@ -1,5 +1,5 @@
 import type { LLMProvider } from "@aerith/ai";
-import type { ToolDefinition } from "../types.ts";
+import type { ToolDefinition, ToolPermissions } from "../types.ts";
 
 export type ProviderFactory = (options: { apiKey?: string; baseURL?: string; model?: string }) => LLMProvider;
 
@@ -13,6 +13,7 @@ export type ExtensionContext = {
 export type Extension = {
 	name: string;
 	version?: string;
+	permissions?: ToolPermissions;
 	activate(context: ExtensionContext): void | Promise<void>;
 	deactivate?(): void | Promise<void>;
 };

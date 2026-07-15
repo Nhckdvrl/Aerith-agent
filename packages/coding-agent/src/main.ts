@@ -55,6 +55,8 @@ export async function main(args: Args): Promise<void> {
 	const extensionManager = new ExtensionManager({
 		cwd: sessionManager.getCwd(),
 		settings: settings.getExtensionSettings(),
+		allowedPermissions: { write: allowWrite, bash: allowBash },
+		logger: (message) => console.error(message),
 	});
 	await extensionManager.loadBuiltIn([helloExtension]);
 	await extensionManager.loadFromDirectory(path.join(homedir(), ".aerith", "extensions"));

@@ -3,9 +3,16 @@ import type { CompactionOptions } from "./compaction.ts";
 
 export type { LLMProvider };
 
+export type ToolPermissions = {
+	write?: boolean;
+	bash?: boolean;
+	network?: boolean;
+};
+
 export type ToolDefinition = {
 	schema: Tool;
 	execute: (args: string) => Promise<string>;
+	permissions?: ToolPermissions;
 };
 
 export type AgentOptions = {

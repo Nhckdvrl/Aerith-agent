@@ -73,6 +73,7 @@ export function createBuiltinTools(options: BuiltinToolOptions): Map<string, Too
 				return formatError(error);
 			}
 		},
+		permissions: { write: true },
 	});
 
 	tools.set("edit_file", {
@@ -111,6 +112,7 @@ export function createBuiltinTools(options: BuiltinToolOptions): Map<string, Too
 				return formatError(error);
 			}
 		},
+		permissions: { write: true },
 	});
 
 	tools.set("list_dir", {
@@ -202,6 +204,7 @@ export function createBuiltinTools(options: BuiltinToolOptions): Map<string, Too
 				return formatError(error);
 			}
 		},
+		permissions: { bash: true },
 	});
 
 	tools.set("bash", {
@@ -238,6 +241,7 @@ export function createBuiltinTools(options: BuiltinToolOptions): Map<string, Too
 				return formatError(error);
 			}
 		},
+		permissions: { bash: true },
 	});
 
 	return tools;

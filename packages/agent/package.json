@@ -1,0 +1,27 @@
+{
+	"name": "@aerith/agent",
+	"version": "0.1.0",
+	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"clean": "rm -rf dist",
+		"build": "tsc -p tsconfig.build.json",
+		"test": "node --test dist/**/*.test.js"
+	},
+	"dependencies": {
+		"@aerith/ai": "^0.1.0"
+	},
+	"devDependencies": {
+		"@types/node": "22.19.19"
+	},
+	"engines": {
+		"node": ">=22.19.0"
+	}
+}

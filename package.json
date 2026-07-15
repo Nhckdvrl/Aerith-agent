@@ -1,0 +1,29 @@
+{
+	"name": "aerith-monorepo",
+	"private": true,
+	"type": "module",
+	"version": "0.1.0",
+	"workspaces": [
+		"packages/*"
+	],
+	"scripts": {
+		"clean": "npm run clean --workspaces",
+		"build": "npm run build --workspace @aerith/tui && npm run build --workspace @aerith/ai && npm run build --workspace @aerith/agent && npm run build --workspace @aerith/coding-agent",
+		"typecheck": "tsc --noEmit",
+		"check": "biome check --write --error-on-warnings . && npm run typecheck",
+		"dev": "tsx packages/coding-agent/src/cli.ts",
+		"test:local": "tsx packages/coding-agent/src/test-local.ts",
+		"test:session": "tsx packages/coding-agent/src/test-session.ts",
+		"test:tools": "tsx packages/coding-agent/src/test-tools.ts",
+		"test": "npm run test --workspaces --if-present"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.3.5",
+		"@types/node": "22.19.19",
+		"tsx": "4.22.1",
+		"typescript": "5.9.3"
+	},
+	"engines": {
+		"node": ">=22.19.0"
+	}
+}

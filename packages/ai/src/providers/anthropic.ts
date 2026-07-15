@@ -22,7 +22,8 @@ export class AnthropicProvider implements LLMProvider {
 		const systemPrompt = options.systemPrompt;
 		const anthropicMessages = messages.map(toAnthropicMessage);
 		const anthropicTools = tools.map(toAnthropicTool);
-		const response = await this.client.messages.create({
+
+		const stream = await this.client.messages.stream({
 			model,
 			max_tokens: options.maxTokens ?? 4096,
 			temperature: options.temperature,
@@ -31,27 +32,62 @@ export class AnthropicProvider implements LLMProvider {
 			tools: anthropicTools.length > 0 ? anthropicTools : undefined,
 		});
 
-		let text = "";
-		for (const block of response.content) {
-			if (block.type === "text") {
-				text += block.text;
-			} else if (block.type === "tool_use") {
-				if (text) {
-					yield { type: "text", delta: text };
-					text = "";
+		let textBuffer = "";
+		let toolId: string | undefined;
+		let toolName: string | undefined;
+		let toolArgs = "";
+
+		for await (const event of stream) {
+			if (event.type === "content_block_delta") {
+				if (event.delta.type === "text_delta") {
+					textBuffer += event.delta.text;
 				}
-				yield {
-					type: "toolCall",
-					toolCall: {
-						id: block.id,
-						name: block.name,
-						arguments: JSON.stringify(block.input),
-					},
-				};
+				if (event.delta.type === "input_json_delta") {
+					toolArgs += event.delta.partial_json;
+				}
+			} else if (event.type === "content_block_start") {
+				if (event.content_block.type === "tool_use") {
+					if (textBuffer) {
+						yield { type: "text", delta: textBuffer };
+						textBuffer = "";
+					}
+					toolId = event.content_block.id;
+					toolName = event.content_block.name;
+					toolArgs = "";
+				}
+			} else if (event.type === "content_block_stop") {
+				if (textBuffer) {
+					yield { type: "text", delta: textBuffer };
+					textBuffer = "";
+				}
+				if (toolId && toolName) {
+					yield {
+						type: "toolCall",
+						toolCall: {
+							id: toolId,
+							name: toolName,
+							arguments: toolArgs || "{}",
+						},
+					};
+					toolId = undefined;
+					toolName = undefined;
+					toolArgs = "";
+				}
 			}
 		}
-		if (text) {
-			yield { type: "text", delta: text };
+
+		if (textBuffer) {
+			yield { type: "text", delta: textBuffer };
+		}
+		if (toolId && toolName) {
+			yield {
+				type: "toolCall",
+				toolCall: {
+					id: toolId,
+					name: toolName,
+					arguments: toolArgs || "{}",
+				},
+			};
 		}
 	}
 }

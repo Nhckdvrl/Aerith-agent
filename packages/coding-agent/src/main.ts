@@ -1,7 +1,10 @@
 import { createInterface } from "node:readline";
-import { Agent, createBuiltinTools, SessionManager } from "@aerith/agent";
+import { Agent, createBuiltinTools, ExtensionManager, SessionManager } from "@aerith/agent";
 import { createProvider, ModelRegistry } from "@aerith/ai";
+import { homedir } from "node:os";
+import path from "node:path";
 import type { Args } from "./args.ts";
+import { helloExtension } from "./extensions/hello.ts";
 import { runFirstTimeSetup, shouldRunFirstTimeSetup } from "./first-time-setup.ts";
 import { SettingsManager } from "./settings.ts";
 import { TrustManager } from "./trust.ts";
@@ -48,10 +51,19 @@ export async function main(args: Args): Promise<void> {
 		allowWrite,
 		allowBash,
 	});
+
+	const extensionManager = new ExtensionManager({ cwd: sessionManager.getCwd(), settings: settings.getExtensionSettings() });
+	await extensionManager.loadBuiltIn([helloExtension]);
+	await extensionManager.loadFromDirectory(path.join(homedir(), ".aerith", "extensions"));
+	for (const [name, tool] of extensionManager.getTools()) {
+		tools.set(name, tool);
+	}
+
 	const agent = new Agent({
 		provider,
 		systemPrompt: SYSTEM_PROMPT,
 		tools,
+		compaction: { maxTokens: 16000, keepRecentMessages: 8 },
 	});
 
 	if (args.prompt) {
@@ -60,7 +72,7 @@ export async function main(args: Args): Promise<void> {
 	}
 
 	if (process.stdin.isTTY && process.stdout.isTTY) {
-		await runTUIMode({ agent, sessionManager });
+		await runTUIMode({ agent, sessionManager, settings });
 		return;
 	}
 

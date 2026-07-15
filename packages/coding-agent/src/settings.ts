@@ -8,6 +8,7 @@ export type Config = {
 	baseURL?: string;
 	allowWrite?: boolean;
 	allowBash?: boolean;
+	extensions?: Record<string, unknown>;
 };
 
 export type SettingsManagerOptions = {
@@ -48,6 +49,10 @@ export class SettingsManager {
 
 	getAllowBash(): boolean | undefined {
 		return this.config.allowBash;
+	}
+
+	getExtensionSettings(): Record<string, unknown> {
+		return this.config.extensions ?? {};
 	}
 
 	static async saveGlobalConfig(config: Config): Promise<void> {

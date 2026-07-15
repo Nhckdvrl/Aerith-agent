@@ -1,0 +1,413 @@
+{
+  "version": 1,
+  "id": "daa87951-abfc-44a4-9326-67b96576cbc9",
+  "createdAt": "2026-07-15T19:46:42.056Z",
+  "updatedAt": "2026-07-15T19:47:28.336Z",
+  "cwd": "/home/xiang/Aerith-agent",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Call the hello tool with name=test"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_4429AIz3Z6EdjpNsdZAaaTS9",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_4429AIz3Z6EdjpNsdZAaaTS9"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_5AGJiLVLwyEwsMtc8z30wNh1",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_5AGJiLVLwyEwsMtc8z30wNh1"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_FW8XaHdzTpgc7TSnFHg0smVA",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_FW8XaHdzTpgc7TSnFHg0smVA"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_S3igS8ZfWbG1jbcowGDCtkwl",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_S3igS8ZfWbG1jbcowGDCtkwl"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_in0t11iI3GbPdvfKaeqg4S9a",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_in0t11iI3GbPdvfKaeqg4S9a"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_Eev5sfrWCzJV3zyNibQg0lsq",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_Eev5sfrWCzJV3zyNibQg0lsq"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_7vctLrp7kT47ZKGIOBzN3qKx",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_7vctLrp7kT47ZKGIOBzN3qKx"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_3te5LbGb2UXvS7O27QnV7geD",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_3te5LbGb2UXvS7O27QnV7geD"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_A8HxnLjpt1u6cq3PFCq6wEY0",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_A8HxnLjpt1u6cq3PFCq6wEY0"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_TzilqJZQ68sBzMhizpoHaZ51",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_TzilqJZQ68sBzMhizpoHaZ51"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_xcRrg8afpUDj0y3enqAhsMTZ",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_xcRrg8afpUDj0y3enqAhsMTZ"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_fO5oOIksR7rUzBtAKcYcxNCj",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_fO5oOIksR7rUzBtAKcYcxNCj"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_UDAR7NX6nUeOxSWPSxoqLzqU",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_UDAR7NX6nUeOxSWPSxoqLzqU"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_HiDpAn3CcKIjNZxIGB1MlPOl",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_HiDpAn3CcKIjNZxIGB1MlPOl"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_Hg9vrYqZUU6PwTNiAhDp0Vk6",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_Hg9vrYqZUU6PwTNiAhDp0Vk6"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_mI9IYwkTDQkmhGnz1c1A0pNh",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_mI9IYwkTDQkmhGnz1c1A0pNh"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_mZBy06TNYbsWBP6PeGPrO8WV",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_mZBy06TNYbsWBP6PeGPrO8WV"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_2SKeCfzJowZfp85HC6nG1dzt",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_2SKeCfzJowZfp85HC6nG1dzt"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_YwLcVNTv4eVYoyCmCgad3pXy",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_YwLcVNTv4eVYoyCmCgad3pXy"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_NPc99Be2YFUUlX8VrcDqPN7O",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_NPc99Be2YFUUlX8VrcDqPN7O"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_FIJ2kcI94lA26vuEYcQYOusS",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_FIJ2kcI94lA26vuEYcQYOusS"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_lQE6j1vFzjTtM3NkVp90Q2wG",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_lQE6j1vFzjTtM3NkVp90Q2wG"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_BfaF43gLyVP7LsaATqUfvobb",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_BfaF43gLyVP7LsaATqUfvobb"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_V46Sq7QtbnB4x1KRonUiR5pD",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_V46Sq7QtbnB4x1KRonUiR5pD"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_DOXJ1Ynl0AhiWn0iD9HNK2CG",
+          "name": "hello",
+          "arguments": "\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Error: Unterminated string in JSON at position 2 (line 1 column 3)",
+      "toolCallId": "tool_DOXJ1Ynl0AhiWn0iD9HNK2CG"
+    }
+  ]
+}

@@ -5,7 +5,7 @@ import type { AgentOptions, AgentRunResult, ToolDefinition } from "./types.ts";
 const DEFAULT_MAX_ITERATIONS = 25;
 
 export class Agent {
-	private readonly provider: AgentOptions["provider"];
+	private provider: AgentOptions["provider"];
 	private readonly systemPrompt?: string;
 	private readonly maxIterations: number;
 	private readonly tools: Map<string, ToolDefinition>;
@@ -23,12 +23,18 @@ export class Agent {
 		this.tools.set(name, definition);
 	}
 
+	setProvider(provider: AgentOptions["provider"]): void {
+		this.provider = provider;
+	}
+
 	async run(input: string, options: { messages?: Message[] } = {}): Promise<AgentRunResult> {
 		const messages: Message[] = options.messages ? [...options.messages] : [];
 		messages.push({ role: "user", content: input });
 
 		for (let iteration = 0; iteration < this.maxIterations; iteration++) {
-			const compacted = this.compaction ? compact(messages, this.compaction) : messages;
+			const compacted = this.compaction
+				? await compact(messages, { ...this.compaction, provider: this.provider })
+				: messages;
 			const toolDefinitions = Array.from(this.tools.values());
 			const toolSchemas: Tool[] = toolDefinitions.map((definition) => definition.schema);
 			const events = this.provider.generate(compacted, toolSchemas, {

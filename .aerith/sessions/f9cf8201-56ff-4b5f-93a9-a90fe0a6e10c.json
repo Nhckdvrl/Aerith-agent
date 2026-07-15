@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "id": "f9cf8201-56ff-4b5f-93a9-a90fe0a6e10c",
+  "createdAt": "2026-07-15T19:52:08.679Z",
+  "updatedAt": "2026-07-15T19:52:11.581Z",
+  "cwd": "/home/xiang/Aerith-agent",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Call the hello tool with name=test"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_Cl9zwqIELftFbY4Mr4wJCuZ1",
+          "name": "hello",
+          "arguments": "{\"name\": \"test\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Hello, test! This tool was provided by the hello extension.",
+      "toolCallId": "tool_Cl9zwqIELftFbY4Mr4wJCuZ1"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello, test! This tool was provided by the hello extension."
+    }
+  ]
+}

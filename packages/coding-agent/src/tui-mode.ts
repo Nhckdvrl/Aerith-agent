@@ -1,10 +1,13 @@
 import type { Agent, SessionManager } from "@aerith/agent";
+import { createProvider, ModelRegistry } from "@aerith/ai";
 import type { Message } from "@aerith/ai";
 import { ProcessTerminal, renderMarkdownToLines, type ScreenBuffer, TUI, type TUIState } from "@aerith/tui";
+import type { SettingsManager } from "./settings.ts";
 
 export type TUIModeOptions = {
 	agent: Agent;
 	sessionManager: SessionManager;
+	settings: SettingsManager;
 };
 
 export function runTUIMode(options: TUIModeOptions): Promise<void> {
@@ -13,6 +16,26 @@ export function runTUIMode(options: TUIModeOptions): Promise<void> {
 		terminal,
 		(screen, state) => render(screen, state, terminal.getSize().columns),
 		async (input, state) => {
+			if (input.startsWith("/model ")) {
+				const modelArg = input.slice("/model ".length).trim();
+				const result = switchModel(options.agent, options.settings, modelArg);
+				tui.addMessage({ type: "assistant", content: result });
+				return;
+			}
+			if (input === "/model") {
+				const registry = new ModelRegistry();
+				const models = registry.search();
+				const list = models.map((m) => `${m.provider}/${m.id}`).join("\n");
+				tui.addMessage({ type: "assistant", content: `Available models:\n${list}\n\nUsage: /model provider/model` });
+				return;
+			}
+			if (input === "/clear") {
+				state.messages = [];
+				options.sessionManager.setMessages([]);
+				await options.sessionManager.save();
+				tui.draw();
+				return;
+			}
 			const agentMessages = state.messages
 				.filter(
 					(m): m is { type: "user" | "assistant"; content: string } => m.type === "user" || m.type === "assistant",
@@ -45,30 +68,38 @@ function render(screen: ScreenBuffer, state: TUIState, columns: number): void {
 	const size = screen.getSize();
 	screen.clear();
 
-	let row = 0;
+	const inputHeight = Math.max(1, state.input.lines.length);
+	const visibleRows = size.rows - inputHeight - 1;
+	const allLines: { text: string; style?: string }[][] = [];
+
 	for (const message of state.messages) {
 		const prefix =
 			message.type === "user" ? "You: " : message.type === "assistant" ? "Aerith: " : `Tool ${message.name}: `;
 		const text = `${prefix}${message.content}`;
 		const lines =
 			message.type === "assistant" ? renderMarkdownToLines(text, columns - 2) : wrapTextToCells(text, columns - 2);
-		for (const line of lines) {
-			if (row >= size.rows - 4) {
-				break;
-			}
-			let col = 1;
-			for (const cell of line) {
-				screen.setCell(row, col, { char: cell.text, style: cell.style });
-				col++;
-			}
-			row++;
-		}
+		allLines.push(...lines, []);
 	}
 
-	const input = state.input;
+	const maxScroll = Math.max(0, allLines.length - visibleRows);
+	const scrollOffset = Math.max(0, Math.min(state.scrollOffset, maxScroll));
+	state.scrollOffset = scrollOffset;
+
+	const startLine = allLines.length - visibleRows - scrollOffset;
+	let row = 0;
+	for (let i = Math.max(0, startLine); i < allLines.length && row < visibleRows; i++) {
+		const line = allLines[i];
+		let col = 1;
+		for (const cell of line) {
+			screen.setCell(row, col, { char: cell.text, style: cell.style });
+			col++;
+		}
+		row++;
+	}
+
 	const prompt = "> ";
-	for (let i = 0; i < input.lines.length; i++) {
-		screen.writeLine(size.rows - input.lines.length + i, `${prompt}${input.lines[i]}`);
+	for (let i = 0; i < state.input.lines.length; i++) {
+		screen.writeLine(size.rows - inputHeight + i, `${prompt}${state.input.lines[i]}`);
 	}
 }
 
@@ -96,4 +127,19 @@ function findLastAssistantMessage(messages: Message[]): Message | undefined {
 		}
 	}
 	return undefined;
+}
+
+function switchModel(agent: Agent, settings: SettingsManager, modelArg: string): string {
+	try {
+		const provider = createProvider({
+			provider: modelArg.split("/")[0],
+			apiKey: settings.getApiKey(),
+			baseURL: settings.getBaseURL(),
+			model: modelArg,
+		});
+		agent.setProvider(provider);
+		return `Switched to model ${modelArg}.`;
+	} catch (error) {
+		return `Failed to switch model: ${error instanceof Error ? error.message : String(error)}`;
+	}
 }

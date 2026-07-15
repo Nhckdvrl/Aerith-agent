@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "id": "cc3e2ba2-25cc-4ee3-9a75-8b4d8ce6bfe2",
+  "createdAt": "2026-07-15T19:52:48.964Z",
+  "updatedAt": "2026-07-15T19:52:52.366Z",
+  "cwd": "/home/xiang/Aerith-agent",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Create a file named test-trust.txt with content 'test'"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "toolCalls": [
+        {
+          "id": "tool_J2xEY9PdJC746W046NNgrbBV",
+          "name": "write_file",
+          "arguments": "{\"content\": \"test\", \"path\": \"test-trust.txt\"}"
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "Wrote /home/xiang/Aerith-agent/test-trust.txt",
+      "toolCallId": "tool_J2xEY9PdJC746W046NNgrbBV"
+    },
+    {
+      "role": "assistant",
+      "content": "The file `test-trust.txt` with content \"test\" has been created successfully."
+    }
+  ]
+}

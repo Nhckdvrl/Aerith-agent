@@ -110,6 +110,16 @@ function parseKey(sequence: string, start: number): { event: KeyEvent; consumed:
 					return { event: { key: "right", ctrl: false, meta: false, shift: false }, consumed: 3 };
 				case "D":
 					return { event: { key: "left", ctrl: false, meta: false, shift: false }, consumed: 3 };
+				case "5":
+					if (sequence[start + 3] === "~") {
+						return { event: { key: "pageup", ctrl: false, meta: false, shift: false }, consumed: 4 };
+					}
+					break;
+				case "6":
+					if (sequence[start + 3] === "~") {
+						return { event: { key: "pagedown", ctrl: false, meta: false, shift: false }, consumed: 4 };
+					}
+					break;
 				default:
 					return { event: { key: "escape", ctrl: false, meta: true, shift: false }, consumed: 2 };
 			}

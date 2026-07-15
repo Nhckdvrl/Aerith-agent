@@ -1,9 +1,10 @@
 import { ModelRegistry, type ProviderName } from "../model-registry.ts";
-import { OpenAIProvider } from "../openai.ts";
-import type { LLMProvider } from "../types.ts";
+import { ProviderRegistry } from "./custom-registry.ts";
 import { AnthropicProvider } from "./anthropic.ts";
 import { GoogleProvider } from "./google.ts";
 import { KimiProvider } from "./kimi.ts";
+import { OpenAIProvider } from "../openai.ts";
+import type { LLMProvider } from "../types.ts";
 
 export type ProviderFactoryOptions = {
 	provider?: ProviderName | string;
@@ -29,10 +30,15 @@ export function createProvider(options: ProviderFactoryOptions): LLMProvider {
 		providerName = modelInfo.provider;
 	}
 
-	const resolvedProvider = (providerName ?? "openai") as ProviderName;
+	const resolvedProvider = (providerName ?? "openai") as ProviderName | string;
 	const resolvedModel = modelId ?? modelInfo?.id;
 
-	switch (resolvedProvider) {
+	const customFactory = ProviderRegistry.get(resolvedProvider);
+	if (customFactory) {
+		return customFactory({ apiKey: options.apiKey, baseURL: options.baseURL, model: resolvedModel });
+	}
+
+	switch (resolvedProvider as ProviderName) {
 		case "kimi":
 		case "moonshot":
 			return new KimiProvider({

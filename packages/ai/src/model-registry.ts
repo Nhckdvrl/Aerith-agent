@@ -53,6 +53,13 @@ export const KNOWN_MODELS: ModelInfo[] = [
 		contextWindow: 256000,
 	},
 	{
+		id: "kimi-for-coding",
+		provider: "kimi",
+		name: "Kimi for Coding",
+		description: "Kimi Code Plan membership model via api.kimi.com/coding/v1",
+		contextWindow: 256000,
+	},
+	{
 		id: "kimi-k2.6",
 		provider: "kimi",
 		name: "Kimi K2.6",

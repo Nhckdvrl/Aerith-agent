@@ -23,7 +23,7 @@ export class GoogleProvider implements LLMProvider {
 		const googleTools = tools.map(toGoogleTool);
 		const contents = messages.map(toGoogleContent);
 
-		const response = await this.client.models.generateContent({
+		const stream = await this.client.models.generateContentStream({
 			model,
 			config: {
 				temperature: options.temperature,
@@ -34,20 +34,22 @@ export class GoogleProvider implements LLMProvider {
 			contents: contents as any,
 		} as any);
 
-		for (const candidate of response.candidates ?? []) {
-			for (const part of candidate.content?.parts ?? []) {
-				if ("text" in part && typeof part.text === "string") {
-					yield { type: "text", delta: part.text };
-				}
-				if ("functionCall" in part && part.functionCall) {
-					yield {
-						type: "toolCall",
-						toolCall: {
-							id: part.functionCall.name ?? "",
-							name: part.functionCall.name ?? "",
-							arguments: JSON.stringify(part.functionCall.args),
-						},
-					};
+		for await (const response of stream) {
+			for (const candidate of response.candidates ?? []) {
+				for (const part of candidate.content?.parts ?? []) {
+					if ("text" in part && typeof part.text === "string") {
+						yield { type: "text", delta: part.text };
+					}
+					if ("functionCall" in part && part.functionCall) {
+						yield {
+							type: "toolCall",
+							toolCall: {
+								id: part.functionCall.name ?? "",
+								name: part.functionCall.name ?? "",
+								arguments: JSON.stringify(part.functionCall.args),
+							},
+						};
+					}
 				}
 			}
 		}

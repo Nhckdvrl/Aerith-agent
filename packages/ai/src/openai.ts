@@ -50,7 +50,7 @@ export class OpenAIProvider implements LLMProvider {
 					const existing = toolCalls.get(index) ?? { id: "", name: "", arguments: "" };
 					existing.id = toolCallDelta.id ?? existing.id;
 					existing.name = toolCallDelta.function?.name ?? existing.name;
-					existing.arguments = toolCallDelta.function?.arguments ?? existing.arguments;
+					existing.arguments += toolCallDelta.function?.arguments ?? "";
 					toolCalls.set(index, existing);
 				}
 			}
@@ -67,6 +67,20 @@ function toOpenAIMessage(message: Message): OpenAI.Chat.ChatCompletionMessagePar
 			role: "tool",
 			content: typeof message.content === "string" ? message.content : "",
 			tool_call_id: message.toolCallId ?? "",
+		};
+	}
+	if (message.role === "assistant" && message.toolCalls) {
+		return {
+			role: "assistant",
+			content: typeof message.content === "string" ? message.content : "",
+			tool_calls: message.toolCalls.map((toolCall) => ({
+				id: toolCall.id,
+				type: "function",
+				function: {
+					name: toolCall.name,
+					arguments: toolCall.arguments,
+				},
+			})),
 		};
 	}
 	if (Array.isArray(message.content)) {

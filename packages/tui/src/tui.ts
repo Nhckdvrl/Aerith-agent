@@ -15,6 +15,7 @@ export type TUIState = {
 	history: string[];
 	historyIndex: number;
 	messages: Message[];
+	scrollOffset: number;
 };
 
 export type Message =
@@ -43,6 +44,7 @@ export class TUI {
 			history: [],
 			historyIndex: -1,
 			messages: [],
+			scrollOffset: 0,
 		};
 		this.screen = new ScreenBuffer(terminal.getSize());
 	}
@@ -72,10 +74,21 @@ export class TUI {
 
 	addMessage(message: Message): void {
 		this.state.messages.push(message);
+		this.state.scrollOffset = 0;
 		this.draw();
 	}
 
 	private handleKey(key: KeyEvent): void {
+		if (key.key === "pageup") {
+			this.state.scrollOffset += Math.max(1, Math.floor(this.terminal.getSize().rows / 2));
+			this.draw();
+			return;
+		}
+		if (key.key === "pagedown") {
+			this.state.scrollOffset = Math.max(0, this.state.scrollOffset - Math.floor(this.terminal.getSize().rows / 2));
+			this.draw();
+			return;
+		}
 		if (key.key === "return") {
 			if (key.ctrl) {
 				multiLineInputInsertNewLine(this.state.input);
@@ -132,7 +145,7 @@ export class TUI {
 		await this.onSubmit(input, this.state);
 	}
 
-	private draw(): void {
+	draw(): void {
 		if (!this.running) {
 			return;
 		}

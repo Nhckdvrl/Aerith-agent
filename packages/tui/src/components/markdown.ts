@@ -1,4 +1,5 @@
 import { marked } from "marked";
+import { highlightLine } from "./syntax-highlight.ts";
 
 export type MarkdownCell = {
 	text: string;
@@ -16,7 +17,8 @@ export function renderMarkdownToLines(source: string, width: number): MarkdownCe
 		} else if (token.type === "code") {
 			const text = typeof token.text === "string" ? token.text : "";
 			for (const line of text.split("\n")) {
-				lines.push([{ text: line, style: "\u001b[48;5;236m" }]);
+				const cells = highlightLine(line);
+				lines.push(cells.map((cell) => ({ text: cell.text, style: cell.style || "\u001b[48;5;236m" })));
 			}
 		} else if (token.type === "heading") {
 			const text = typeof token.text === "string" ? token.text : "";

@@ -59,11 +59,18 @@ npx tsx packages/coding-agent/src/cli.ts -p "hello"
 
 ```json
 {
-  "model": "kimi/k2.7-code",
+  "model": "kimi-for-coding",
+  "apiKey": "sk-..."
+}
+```
+
+如果你使用的是 Kimi 开放平台（非 Code Plan），配置示例：
+
+```json
+{
+  "model": "kimi-k2.7-code",
   "apiKey": "sk-...",
-  "baseURL": "https://api.moonshot.cn/v1",
-  "allowWrite": false,
-  "allowBash": false
+  "baseURL": "https://api.moonshot.cn/v1"
 }
 ```
 
@@ -79,8 +86,9 @@ npx tsx packages/coding-agent/src/cli.ts -p "hello"
 ### @aerith/agent
 
 - `src/agent.ts`：Agent 主循环，反复调用 LLM、执行工具、拼接对话。
-- `src/tools.ts`：内置工具（read_file、write_file、edit_file、bash、list_dir、grep）。
-- `src/session/`：会话管理，支持创建、打开、继续、保存会话。
+- `src/tools.ts`：内置工具（read_file、write_file、edit_file、bash、list_dir、grep、git）。
+- `src/extensions/`：扩展/插件系统，支持从 `~/.aerith/extensions/*.js` 加载自定义工具和 provider。
+- `src/compaction.ts`：上下文压缩/摘要，防止长会话 token 爆炸。
 
 ### @aerith/coding-agent
 
@@ -93,11 +101,34 @@ npx tsx packages/coding-agent/src/cli.ts -p "hello"
 
 ### @aerith/tui
 
-- `src/terminal.ts`：终端接口，处理原始输入、键盘解析、光标移动。
+- `src/terminal.ts`：终端接口，处理原始输入、键盘解析、光标移动，支持 PageUp/PageDown。
 - `src/screen.ts`：屏幕缓冲区，前后两帧对比，只渲染变化的部分。
-- `src/tui.ts`：TUI 主循环，维护输入、历史、消息列表。
+- `src/tui.ts`：TUI 主循环，维护输入、历史、消息列表、滚动偏移。
+- `src/components/`：多行输入、Markdown 渲染（含代码高亮）、选择列表。
 
-## 本地参考
+## TUI 命令
+
+在 TUI 交互模式下，可以使用以下斜杠命令：
+
+- `/model`：列出所有可用模型。
+- `/model provider/model`：切换当前使用的模型。
+- `/clear`：清空当前会话的屏幕消息。
+
+也可以按 `PageUp` / `PageDown` 滚动浏览历史消息。
+
+## Provider 支持
+
+Aerith 原生支持：
+
+- OpenAI 兼容协议（OpenAI、Kimi 开放平台、Kimi Code Plan 等）。
+- Anthropic Messages API。
+- Google Gemini API。
+
+Kimi Code Plan 用户使用 `-m kimi-for-coding` 即可自动使用 `https://api.kimi.com/coding/v1`。
+
+## 扩展
+
+将自定义扩展放到 `~/.aerith/extensions/*.js`，启动时自动加载。扩展可以注册新工具和自定义 provider。详见 `docs/iterations/12-extension-system.md`（本地文档）。
 
 - `reference/`：pi 仓库克隆，用于对照源码和架构。
 - `docs/`：迭代记录和 `TypeScript入门.md` 教程。

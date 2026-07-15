@@ -1,6 +1,6 @@
 import type { Agent, SessionManager } from "@aerith/agent";
 import type { Message } from "@aerith/ai";
-import { ProcessTerminal, type ScreenBuffer, TUI, type Message as TUIMessage, type TUIState } from "@aerith/tui";
+import { ProcessTerminal, renderMarkdownToLines, type ScreenBuffer, TUI, type TUIState } from "@aerith/tui";
 
 export type TUIModeOptions = {
 	agent: Agent;
@@ -47,44 +47,46 @@ function render(screen: ScreenBuffer, state: TUIState, columns: number): void {
 
 	let row = 0;
 	for (const message of state.messages) {
-		const lines = wrapText(formatMessage(message), columns - 2, size.rows - 2);
+		const prefix =
+			message.type === "user" ? "You: " : message.type === "assistant" ? "Aerith: " : `Tool ${message.name}: `;
+		const text = `${prefix}${message.content}`;
+		const lines =
+			message.type === "assistant" ? renderMarkdownToLines(text, columns - 2) : wrapTextToCells(text, columns - 2);
 		for (const line of lines) {
-			if (row >= size.rows - 2) {
+			if (row >= size.rows - 4) {
 				break;
 			}
-			screen.writeLine(row, ` ${line}`);
+			let col = 1;
+			for (const cell of line) {
+				screen.setCell(row, col, { char: cell.text, style: cell.style });
+				col++;
+			}
 			row++;
 		}
 	}
 
-	screen.writeLine(size.rows - 1, `> ${state.input}`);
+	const input = state.input;
+	const prompt = "> ";
+	for (let i = 0; i < input.lines.length; i++) {
+		screen.writeLine(size.rows - input.lines.length + i, `${prompt}${input.lines[i]}`);
+	}
 }
 
-function formatMessage(message: TUIMessage): string {
-	if (message.type === "user") {
-		return `You: ${message.content}`;
-	}
-	if (message.type === "assistant") {
-		return `Aerith: ${message.content}`;
-	}
-	return `Tool ${message.name}: ${message.content}`;
-}
-
-function wrapText(text: string, width: number, maxLines: number): string[] {
-	const lines: string[] = [];
+function wrapTextToCells(text: string, width: number): { text: string; style?: string }[][] {
+	const lines: { text: string; style?: string }[][] = [];
 	let current = "";
 	for (const char of text) {
 		if (char === "\n" || current.length >= width) {
-			lines.push(current);
+			lines.push([{ text: current }]);
 			current = char === "\n" ? "" : char;
 		} else {
 			current += char;
 		}
 	}
 	if (current || lines.length === 0) {
-		lines.push(current);
+		lines.push([{ text: current }]);
 	}
-	return lines.slice(-maxLines);
+	return lines;
 }
 
 function findLastAssistantMessage(messages: Message[]): Message | undefined {

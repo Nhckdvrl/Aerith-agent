@@ -15,10 +15,13 @@
 		"build": "tsc -p tsconfig.build.json",
 		"test": "node --test dist/**/*.test.js"
 	},
-	"devDependencies": {
-		"@types/node": "22.19.19"
+	"dependencies": {
+		"marked": "18.0.5"
 	},
 	"engines": {
 		"node": ">=22.19.0"
+	},
+	"dependencies": {
+		"marked": "^18.0.6"
 	}
 }

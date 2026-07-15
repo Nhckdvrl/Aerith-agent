@@ -16,9 +16,11 @@
 		"test": "node --test dist/**/*.test.js"
 	},
 	"dependencies": {
-		"@aerith/ai": "^0.1.0"
+		"@aerith/ai": "^0.1.0",
+		"diff": "^8.0.4"
 	},
 	"devDependencies": {
+		"@types/diff": "7.0.2",
 		"@types/node": "22.19.19"
 	},
 	"engines": {

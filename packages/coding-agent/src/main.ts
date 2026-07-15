@@ -1,9 +1,10 @@
 import { createInterface } from "node:readline";
 import { Agent, createBuiltinTools, SessionManager } from "@aerith/agent";
-import { createProvider } from "@aerith/ai";
+import { createProvider, ModelRegistry } from "@aerith/ai";
 import type { Args } from "./args.ts";
 import { runFirstTimeSetup, shouldRunFirstTimeSetup } from "./first-time-setup.ts";
 import { SettingsManager } from "./settings.ts";
+import { TrustManager } from "./trust.ts";
 import { runTUIMode } from "./tui-mode.ts";
 
 const SYSTEM_PROMPT = `You are Aerith, a helpful coding assistant. You can read files, write files, edit files, and run shell commands through tools. Only use tools when needed. Always prefer the smallest change that solves the user's request.`;
@@ -13,12 +14,29 @@ export async function main(args: Args): Promise<void> {
 		return;
 	}
 
+	if (args.listModels !== undefined) {
+		const registry = new ModelRegistry();
+		const models = registry.search(args.listModels || undefined);
+		for (const model of models) {
+			console.log(`${model.provider}/${model.id} - ${model.name}`);
+		}
+		return;
+	}
+
 	if (process.stdin.isTTY && process.stdout.isTTY && shouldRunFirstTimeSetup()) {
 		await runFirstTimeSetup();
 	}
 
 	const settings = await SettingsManager.create({ cwd: args.cwd, configPath: args.configPath });
 	const sessionManager = await resolveSessionManager(args);
+
+	const allowWrite = args.allowWrite || settings.getAllowWrite() || false;
+	const allowBash = args.allowBash || settings.getAllowBash() || false;
+	if ((allowWrite || allowBash) && !args.noSession) {
+		const trustManager = await TrustManager.load();
+		await resolveTrust(args, trustManager, sessionManager.getCwd());
+	}
+
 	const provider = createProvider({
 		provider: args.provider ?? settings.getModel()?.split("/")[0],
 		apiKey: args.apiKey ?? settings.getApiKey(),
@@ -27,8 +45,8 @@ export async function main(args: Args): Promise<void> {
 	});
 	const tools = createBuiltinTools({
 		cwd: sessionManager.getCwd(),
-		allowWrite: args.allowWrite || settings.getAllowWrite() || false,
-		allowBash: args.allowBash || settings.getAllowBash() || false,
+		allowWrite,
+		allowBash,
 	});
 	const agent = new Agent({
 		provider,
@@ -54,6 +72,40 @@ async function runPrintMode(agent: Agent, sessionManager: SessionManager, prompt
 	sessionManager.setMessages(result.messages);
 	await sessionManager.save();
 	console.log(result.text);
+}
+
+async function resolveTrust(args: Args, trustManager: TrustManager, cwd: string): Promise<void> {
+	if (args.trust) {
+		trustManager.setTrusted(cwd, true);
+		await trustManager.save();
+		return;
+	}
+
+	if (trustManager.isTrusted(cwd)) {
+		return;
+	}
+
+	if (process.stdin.isTTY && process.stdout.isTTY) {
+		const rl = createInterface({ input: process.stdin, output: process.stdout });
+		try {
+			const answer = await new Promise<string>((resolve) => {
+				rl.question(`Trust this project (${cwd}) for write/bash tools? [y/N] `, (answer) =>
+					resolve(answer.trim().toLowerCase()),
+				);
+			});
+			const trusted = answer === "y" || answer === "yes";
+			trustManager.setTrusted(cwd, trusted);
+			await trustManager.save();
+			if (!trusted) {
+				throw new Error("Project not trusted. Use --trust to trust it, or run without write/bash tools.");
+			}
+		} finally {
+			rl.close();
+		}
+		return;
+	}
+
+	throw new Error("Project trust is required for write/bash tools. Run with --trust or disable these tools.");
 }
 
 async function resolveSessionManager(args: Args): Promise<SessionManager> {

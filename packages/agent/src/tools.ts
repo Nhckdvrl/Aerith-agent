@@ -3,6 +3,7 @@ import { constants, promises as fs } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { createPatch } from "diff";
 import type { ToolDefinition } from "./types.ts";
 
 const execAsync = promisify(exec);
@@ -104,7 +105,8 @@ export function createBuiltinTools(options: BuiltinToolOptions): Map<string, Too
 				}
 				const updated = content.replace(oldString, newString);
 				await fs.writeFile(resolved, updated, "utf8");
-				return `Edited ${resolved}`;
+				const patch = createPatch(resolved, content, updated, "before", "after");
+				return `Edited ${resolved}\n\n${patch}`;
 			} catch (error) {
 				return formatError(error);
 			}
@@ -168,6 +170,40 @@ export function createBuiltinTools(options: BuiltinToolOptions): Map<string, Too
 		},
 	});
 
+	tools.set("git", {
+		schema: {
+			name: "git",
+			description: "Run a git command in the project directory.",
+			parameters: {
+				type: "object",
+				properties: {
+					command: { type: "string", description: "Git subcommand and arguments (e.g. status)." },
+					max_output_lines: { type: "number", description: "Maximum number of output lines to return." },
+				},
+				required: ["command"],
+			},
+		},
+		execute: async (args) => {
+			if (!options.allowBash) {
+				return "Error: git is disabled (enable with --allow-bash).";
+			}
+			const parsed = parseArgs(args);
+			const command = requireString(parsed.command, "command");
+			const maxOutputLines = requireNumber(parsed.max_output_lines, "max_output_lines") ?? 500;
+			try {
+				const { stdout, stderr } = await execAsync(`git ${command}`, {
+					cwd,
+					timeout: 60000,
+					maxBuffer: 1024 * 1024,
+				});
+				const output = [stdout, stderr].filter(Boolean).join("\n");
+				return truncateOutput(output || "(no output)", maxOutputLines);
+			} catch (error) {
+				return formatError(error);
+			}
+		},
+	});
+
 	tools.set("bash", {
 		schema: {
 			name: "bash",
@@ -177,6 +213,7 @@ export function createBuiltinTools(options: BuiltinToolOptions): Map<string, Too
 				properties: {
 					command: { type: "string", description: "Shell command to run." },
 					timeout: { type: "number", description: "Timeout in milliseconds." },
+					max_output_lines: { type: "number", description: "Maximum number of output lines to return." },
 				},
 				required: ["command"],
 			},
@@ -188,6 +225,7 @@ export function createBuiltinTools(options: BuiltinToolOptions): Map<string, Too
 			const parsed = parseArgs(args);
 			const command = requireString(parsed.command, "command");
 			const timeout = requireNumber(parsed.timeout, "timeout") ?? 60000;
+			const maxOutputLines = requireNumber(parsed.max_output_lines, "max_output_lines") ?? 500;
 			try {
 				const { stdout, stderr } = await execAsync(command, {
 					cwd,
@@ -195,7 +233,7 @@ export function createBuiltinTools(options: BuiltinToolOptions): Map<string, Too
 					maxBuffer: 1024 * 1024,
 				});
 				const output = [stdout, stderr].filter(Boolean).join("\n");
-				return output || "(no output)";
+				return truncateOutput(output || "(no output)", maxOutputLines);
 			} catch (error) {
 				return formatError(error);
 			}
@@ -307,6 +345,16 @@ async function grepDirectory(dir: string, regex: RegExp, filePattern?: string): 
 		}
 	}
 	return matches;
+}
+
+function truncateOutput(output: string, maxLines: number): string {
+	const lines = output.split("\n");
+	if (lines.length <= maxLines) {
+		return output;
+	}
+	const head = lines.slice(0, Math.floor(maxLines / 2));
+	const tail = lines.slice(-Math.floor(maxLines / 2));
+	return `${head.join("\n")}\n... (${lines.length - maxLines} lines omitted) ...\n${tail.join("\n")}`;
 }
 
 function matchGlob(fileName: string, pattern: string): boolean {

@@ -1,4 +1,5 @@
 import type { Message, Tool, ToolCall } from "@aerith/ai";
+import { type CompactionOptions, compact } from "./compaction.ts";
 import type { AgentOptions, AgentRunResult, ToolDefinition } from "./types.ts";
 
 const DEFAULT_MAX_ITERATIONS = 25;
@@ -8,12 +9,14 @@ export class Agent {
 	private readonly systemPrompt?: string;
 	private readonly maxIterations: number;
 	private readonly tools: Map<string, ToolDefinition>;
+	private readonly compaction?: CompactionOptions;
 
 	constructor(options: AgentOptions) {
 		this.provider = options.provider;
 		this.systemPrompt = options.systemPrompt;
 		this.maxIterations = options.maxIterations ?? DEFAULT_MAX_ITERATIONS;
 		this.tools = options.tools ?? new Map<string, ToolDefinition>();
+		this.compaction = options.compaction;
 	}
 
 	addTool(name: string, definition: ToolDefinition): void {
@@ -25,9 +28,10 @@ export class Agent {
 		messages.push({ role: "user", content: input });
 
 		for (let iteration = 0; iteration < this.maxIterations; iteration++) {
+			const compacted = this.compaction ? compact(messages, this.compaction) : messages;
 			const toolDefinitions = Array.from(this.tools.values());
 			const toolSchemas: Tool[] = toolDefinitions.map((definition) => definition.schema);
-			const events = this.provider.generate(messages, toolSchemas, {
+			const events = this.provider.generate(compacted, toolSchemas, {
 				systemPrompt: this.systemPrompt,
 			});
 

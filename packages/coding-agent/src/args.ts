@@ -14,6 +14,8 @@ export type Args = {
 	resume: boolean;
 	sessionDir?: string;
 	name?: string;
+	listModels?: string;
+	trust?: boolean;
 	help: boolean;
 };
 
@@ -78,6 +80,12 @@ export function parseArgs(argv: string[]): Args {
 			case "--name":
 				args.name = argv[++i];
 				break;
+			case "--list-models":
+				args.listModels = argv[i + 1]?.startsWith("-") ? "" : (argv[++i] ?? "");
+				break;
+			case "--trust":
+				args.trust = true;
+				break;
 			case "-h":
 			case "--help":
 				args.help = true;
@@ -107,6 +115,8 @@ Options:
   --resume             List sessions and select one to continue
   --session-dir <dir>  Directory for session files
   --name <name>       Name the session
-  -h, --help           Show this help
+  --list-models       List available models
+  --trust             Trust the current project for write/bash tools
+  -h, --help          Show this help
 `);
 }

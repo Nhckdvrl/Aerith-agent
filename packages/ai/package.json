@@ -16,6 +16,8 @@
 		"test": "node --test dist/**/*.test.js"
 	},
 	"dependencies": {
+		"@anthropic-ai/sdk": "0.91.1",
+		"@google/genai": "1.52.0",
 		"openai": "4.96.1"
 	},
 	"devDependencies": {

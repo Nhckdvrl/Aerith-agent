@@ -1,51 +1,61 @@
+import { ModelRegistry, type ProviderName } from "../model-registry.ts";
 import { OpenAIProvider } from "../openai.ts";
 import type { LLMProvider } from "../types.ts";
-
-export type KnownProvider = "openai" | "kimi" | "moonshot" | "openai-compatible";
+import { AnthropicProvider } from "./anthropic.ts";
+import { GoogleProvider } from "./google.ts";
+import { KimiProvider } from "./kimi.ts";
 
 export type ProviderFactoryOptions = {
-	provider?: KnownProvider | string;
+	provider?: ProviderName | string;
 	apiKey?: string;
 	baseURL?: string;
 	model?: string;
+	registry?: ModelRegistry;
 };
 
 export function createProvider(options: ProviderFactoryOptions): LLMProvider {
-	let providerName = options.provider ?? "openai";
-	let model = options.model;
+	const registry = options.registry ?? new ModelRegistry();
+	let providerName: ProviderName | string | undefined = options.provider;
+	let modelId = options.model;
 
-	if (model?.includes("/")) {
-		const [providerFromModel, modelName] = splitModel(model);
+	if (modelId?.includes("/")) {
+		const [providerFromModel, modelName] = splitModel(modelId);
 		providerName = providerFromModel;
-		model = modelName;
+		modelId = modelName;
 	}
 
-	const apiKey = options.apiKey ?? resolveApiKey(providerName);
+	const modelInfo = modelId ? registry.findById(modelId) : undefined;
+	if (modelInfo) {
+		providerName = modelInfo.provider;
+	}
 
-	switch (providerName) {
+	const resolvedProvider = (providerName ?? "openai") as ProviderName;
+	const resolvedModel = modelId ?? modelInfo?.id;
+
+	switch (resolvedProvider) {
 		case "kimi":
 		case "moonshot":
-			return new OpenAIProvider({
-				apiKey,
-				baseURL: options.baseURL ?? "https://api.moonshot.cn/v1",
-				defaultModel: model ?? "kimi-k2.7-code",
-			});
-		default:
-			return new OpenAIProvider({
-				apiKey,
+			return new KimiProvider({
+				apiKey: options.apiKey,
 				baseURL: options.baseURL,
-				defaultModel: model ?? "gpt-4o-mini",
+				defaultModel: resolvedModel,
 			});
-	}
-}
-
-function resolveApiKey(providerName: string): string | undefined {
-	switch (providerName) {
-		case "kimi":
-		case "moonshot":
-			return process.env.MOONSHOT_API_KEY;
+		case "anthropic":
+			return new AnthropicProvider({
+				apiKey: options.apiKey,
+				defaultModel: resolvedModel,
+			});
+		case "google":
+			return new GoogleProvider({
+				apiKey: options.apiKey,
+				defaultModel: resolvedModel,
+			});
 		default:
-			return process.env.OPENAI_API_KEY;
+			return new OpenAIProvider({
+				apiKey: options.apiKey,
+				baseURL: options.baseURL,
+				defaultModel: resolvedModel,
+			});
 	}
 }
 
@@ -56,3 +66,5 @@ function splitModel(model: string): [string, string] {
 	}
 	return [model.slice(0, separatorIndex), model.slice(separatorIndex + 1)];
 }
+
+export { ModelRegistry };

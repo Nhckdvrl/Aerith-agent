@@ -1,11 +1,19 @@
+import {
+	createMultiLineInput,
+	type MultiLineInputState,
+	backspace as multiLineInputBackspace,
+	getText as multiLineInputGetText,
+	insertChar as multiLineInputInsertChar,
+	insertNewLine as multiLineInputInsertNewLine,
+	moveCursor as multiLineInputMoveCursor,
+} from "./components/multi-line-input.ts";
 import { ScreenBuffer } from "./screen.ts";
 import type { KeyEvent, Terminal } from "./terminal.ts";
 
 export type TUIState = {
-	input: string;
+	input: MultiLineInputState;
 	history: string[];
 	historyIndex: number;
-	cursor: number;
 	messages: Message[];
 };
 
@@ -31,10 +39,9 @@ export class TUI {
 		this.render = render;
 		this.onSubmit = onSubmit;
 		this.state = {
-			input: "",
+			input: createMultiLineInput(),
 			history: [],
 			historyIndex: -1,
-			cursor: 0,
 			messages: [],
 		};
 		this.screen = new ScreenBuffer(terminal.getSize());
@@ -69,63 +76,57 @@ export class TUI {
 	}
 
 	private handleKey(key: KeyEvent): void {
-		if (key.key === "return" && !key.ctrl) {
-			this.submit();
+		if (key.key === "return") {
+			if (key.ctrl) {
+				multiLineInputInsertNewLine(this.state.input);
+				this.draw();
+			} else {
+				this.submit();
+			}
 			return;
 		}
 		if (key.key === "backspace") {
-			if (this.state.cursor > 0) {
-				this.state.input =
-					this.state.input.slice(0, this.state.cursor - 1) + this.state.input.slice(this.state.cursor);
-				this.state.cursor--;
-			}
+			multiLineInputBackspace(this.state.input);
 			this.draw();
 			return;
 		}
-		if (key.key === "left") {
-			this.state.cursor = Math.max(0, this.state.cursor - 1);
-			this.draw();
-			return;
-		}
-		if (key.key === "right") {
-			this.state.cursor = Math.min(this.state.input.length, this.state.cursor + 1);
+		if (key.key === "left" || key.key === "right" || key.key === "up" || key.key === "down") {
+			multiLineInputMoveCursor(this.state.input, key.key);
 			this.draw();
 			return;
 		}
 		if (key.key === "up" && this.state.historyIndex < this.state.history.length - 1) {
 			this.state.historyIndex++;
-			this.state.input = this.state.history[this.state.history.length - 1 - this.state.historyIndex] ?? "";
-			this.state.cursor = this.state.input.length;
+			this.state.input = createMultiLineInput(
+				this.state.history[this.state.history.length - 1 - this.state.historyIndex] ?? "",
+			);
 			this.draw();
 			return;
 		}
 		if (key.key === "down" && this.state.historyIndex >= 0) {
 			this.state.historyIndex--;
-			this.state.input =
+			this.state.input = createMultiLineInput(
 				this.state.historyIndex === -1
 					? ""
-					: (this.state.history[this.state.history.length - 1 - this.state.historyIndex] ?? "");
-			this.state.cursor = this.state.input.length;
+					: (this.state.history[this.state.history.length - 1 - this.state.historyIndex] ?? ""),
+			);
 			this.draw();
 			return;
 		}
 		if (key.key.length === 1) {
-			this.state.input =
-				this.state.input.slice(0, this.state.cursor) + key.key + this.state.input.slice(this.state.cursor);
-			this.state.cursor++;
+			multiLineInputInsertChar(this.state.input, key.key);
 			this.draw();
 		}
 	}
 
 	private async submit(): Promise<void> {
-		const input = this.state.input.trim();
+		const input = multiLineInputGetText(this.state.input).trim();
 		if (!input) {
 			return;
 		}
 		this.state.history.push(input);
 		this.state.historyIndex = -1;
-		this.state.input = "";
-		this.state.cursor = 0;
+		this.state.input = createMultiLineInput();
 		this.state.messages.push({ type: "user", content: input });
 		this.draw();
 		await this.onSubmit(input, this.state);
@@ -146,6 +147,7 @@ export class TUI {
 			(text) => this.terminal.write(text),
 			(row, col) => this.terminal.moveCursor(row, col),
 		);
-		this.terminal.moveCursor(size.rows - 1, this.state.input.length + 2);
+		const input = this.state.input;
+		this.terminal.moveCursor(size.rows - input.lines.length + input.cursorRow, input.cursorCol + 2);
 	}
 }

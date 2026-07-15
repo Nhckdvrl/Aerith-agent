@@ -1,4 +1,5 @@
 import type { LLMProvider, Message, Tool } from "@aerith/ai";
+import type { CompactionOptions } from "./compaction.ts";
 
 export type { LLMProvider };
 
@@ -11,6 +12,7 @@ export type AgentOptions = {
 	provider: LLMProvider;
 	systemPrompt?: string;
 	maxIterations?: number;
+	compaction?: CompactionOptions;
 	tools?: Map<string, ToolDefinition>;
 };
 

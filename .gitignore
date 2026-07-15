@@ -5,3 +5,8 @@ node_modules
 .env
 reference/
 docs/
+.aerith/
+test-*.txt
+scripts/debug-*.mjs
+packages/*/test-*.ts
+
